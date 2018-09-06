@@ -1,5 +1,5 @@
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#
-#$			DISTANCED					  $#
+#$		DISTANCED                 $#
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#
 #A script for estimating the original distances between nucleic acid sequences (prior to introduction of sequencing errors)
 
