@@ -1,2 +1,4 @@
 # Distanced
 Distanced is a bioinformatics tool that accurately estimates diversity of ribosomal DNA sequences within microbial communities.  Estimating diversity has been a perennial challenge because sequencing error creates artefactual sequences and inflates diversity.  Distanced overcomes this problem by correcting values of mean pairwise distance, a measure of within-sample diversity, for the expected increase after sequencing.  
+
+Distanced can be run using Distanced_script.R.  It requires DNA sequence reads (fastq format) that have been processed to remove chimeras and contaminants.  This version also requires reference sequences for alignment and to check accuracy.    Other scripts provided are for processing or to reproduce analyses with other bioinformatics tools, as described in a submitted manuscript.
