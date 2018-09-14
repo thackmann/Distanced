@@ -1,5 +1,5 @@
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#
-#$		DISTANCED                 $#
+#$			DISTANCED					  $#
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#
 #A script for estimating the original distances between nucleic acid sequences (prior to introduction of sequencing errors)
 
@@ -14,21 +14,18 @@
 #All sequences must be trimmed to same region of interest (e.g., V4) for downstream alignment
 
 #Set working directory
-setwd("C:/My Directory")
+setwd("C:/My_Directory")
 
 #File path for sample sequences (those containing errors) 
-sample.filepath=file.path=("Mock1V34run130401.fq")
+sample.filepath=file.path=("Mock1V34run130401.fasta")
 
 #File path for reference sequences (those containing no errors)
 reference.filepath=file.path=("reference_sequences_V34_no_primers.fasta")
 
-#File type for sample sequence
-sample_filetype_FASTQ.character=TRUE #File type for sample sequences (set to "FALSE" if FASTA)
-
 #------------------------------------------------------------------------
 #Define maximum number of sequences to be analyzed and datapoints to plot
 #------------------------------------------------------------------------
-n_sample_max.scalar=1000 #Maximum number of sequences to be analyzed
+n_sample_max.scalar=100 #Maximum number of sequences to be analyzed
 n_datapoints_max.scalar=10000 #Maximum number of datapoints to plot
 replace_ambiguous_letters.character=TRUE #Replace ambiguous letters (N) with A, T, C, or G (chosen randomly) (set to FALSE if no replacement should be made)
 random_seed.character=FALSE #For reproducibility, same sequences and datapoints are subsampled each time (set to TRUE if subsampling should be different)
@@ -104,7 +101,26 @@ if(load_packages.character==TRUE)
 #------------------------------------
 #Load sequence (fasta or fastq) files
 #------------------------------------
-#File type for sample sequences (set to "FALSE" if FASTA)
+#Determine if sample sequence is fasta or fastq
+if(sub("^.*\\.","", sample.filepath)=="fq") #If extension is "fq" 
+{
+	sample_filetype_FASTQ.character=TRUE #File is fastq
+}
+
+if(sub("^.*\\.","", sample.filepath)=="fastq") #If extension is "fastq"
+{
+	sample_filetype_FASTQ.character=TRUE #File is fastq
+}
+
+if(sub("^.*\\.","", sample.filepath)==("fa")) #If extension is "fa" 
+{
+	sample_filetype_FASTQ.character=FALSE #File is fasta
+}
+
+if(sub("^.*\\.","", sample.filepath)==("fasta")) #If extension is "fasta"
+{
+	sample_filetype_FASTQ.character=FALSE #File is fasta
+}
 
 #Read in fastq file for sample sequences
 if(sample_filetype_FASTQ.character==TRUE)
@@ -152,15 +168,16 @@ if(n_sample_filtered.scalar<=n_sample_max.scalar) #If number of sequences is les
 ##################################################
 #Replace ambiguous letters (N) with A, T, C, or G#
 ##################################################
-
-if(replace_ambiguous_letters.character=="TRUE")
+if(sample_filetype_FASTQ.character==TRUE)
 {
-	sample.vector=as(sread(sample.shortreadq),"character") #Convert sample.shortreadq to character vector (enables replacement of N's)
-	matches.list <- gregexpr("[N]", sample.vector) #Find N's
-	regmatches(sample.vector,matches.list) <- lapply(lengths(matches.list), sample, x=c("A","T","C","G"),1) #Replace N's with A, T, C, or G (sampled randomly)
-	sample.shortreadq=ShortReadQ(DNAStringSet(sample.vector), quality(sample.shortreadq), id(sample.shortreadq)) #Recreate sample.shortreadq with ambiguous letters replaced
+	if(replace_ambiguous_letters.character==TRUE)
+	{
+		sample.vector=as(sread(sample.shortreadq),"character") #Convert sample.shortreadq to character vector (enables replacement of N's)
+		matches.list <- gregexpr("[N]", sample.vector) #Find N's
+		regmatches(sample.vector,matches.list) <- lapply(lengths(matches.list), sample, x=c("A","T","C","G"),1) #Replace N's with A, T, C, or G (sampled randomly)
+		sample.shortreadq=ShortReadQ(DNAStringSet(sample.vector), quality(sample.shortreadq), id(sample.shortreadq)) #Recreate sample.shortreadq with ambiguous letters replaced
+	}
 }
-
 
 #############################################################
 #Determine which reference sequence matches sample sequences#
@@ -238,7 +255,7 @@ for(i in 1:n_sample.scalar)
 }
 
 reference_id.vector=as.vector(id(reference.shortread)[reference_index.matrix]) #IDs of reference sequences that match sample sequences
-distances_referencematch.vector=distances_referencematch.vector/(n_align.scalar-n_shared_indels.vector) #distances between sample and reference sequence match
+identities_referencematch.vector=1-distances_referencematch.vector/(n_align.scalar-n_shared_indels.vector) #Identity between sample and reference sequence match
 
 ###########################################################################################################################
 #Determine the original distances (actual), which are distances between references sequences that match sample sequences#
