@@ -1,5 +1,5 @@
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#
-#$		DISTANCED	          $#
+#$			DISTANCED		      		  $#
 #$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$#
 #A script for estimating the original distances between nucleic acid sequences (prior to introduction of sequencing errors)
 
@@ -8,19 +8,21 @@
 ##########################################################
 #During normal use, change code under this heading only
 
-#-------------------------------------------------
-#Define paths for sequence (fasta or fastq) files)
-#-------------------------------------------------
-#All sequences must be trimmed to same region of interest (e.g., V4) for downstream alignment
-
+#-----------------
+#Define file paths
+#-----------------
 #Set working directory
-setwd("C:/My_Directory")
+setwd("C:/My Directory")
 
 #File path for sample sequences (those containing errors) 
-sample.filepath=file.path=("Mock1V34run130401.fasta")
+sample.filepath=file.path=("Mock1V4run130401.fq")
 
 #File path for reference sequences (those containing no errors)
-reference.filepath=file.path=("reference_sequences_V34_no_primers.fasta")
+reference.filepath=file.path=("reference_sequences_V4_no_primers.fasta") #Set to NA is no reference sequences available
+
+#File path for C++ code
+distances_original_estimated.filepath=file.path=("C:/My Directory/distances_original_estimated.cpp")
+n_shared_indels.filepath=file.path=("C:/My Directory/n_shared_indels.cpp")
 
 #------------------------------------------------------------------------
 #Define maximum number of sequences to be analyzed and datapoints to plot
@@ -69,6 +71,11 @@ if(install_packages.character==TRUE)
 
 	#stringdist 
 	install.packages("stringdist")
+
+	#Rccp
+	#install.packages(c("Rcpp","installr"))
+	#library(installr)
+	#install.Rtools() #Click "Add rtools to system PATH" when prompted, then restart R
 }
 
 if(load_packages.character==TRUE)
@@ -96,11 +103,20 @@ if(load_packages.character==TRUE)
 
 	#stringdist
 	library(stringdist)
+	
+	#Rccp
+	library(Rcpp)
 }
 
-#------------------------------------
-#Load sequence (fasta or fastq) files
-#------------------------------------
+##################
+#Compile C++ code#
+##################
+sourceCpp(distances_original_estimated.filepath)
+sourceCpp(n_shared_indels.filepath)
+
+######################################
+#Load sequence (fasta or fastq) files#
+######################################
 #Determine if sample sequence is fasta or fastq
 if(sub("^.*\\.","", sample.filepath)=="fq") #If extension is "fq" 
 {
@@ -133,11 +149,14 @@ if(sample_filetype_FASTQ.character==FALSE)
 }
 
 #Read in fasta file for reference sequences
-reference.shortread=readFasta(reference.filepath)
+if(reference.filepath!="NA")
+{
+	reference.shortread=readFasta(reference.filepath)
+}
 
-#-------------------------------------------------
-#Set seed for subsampling sequences and datapoints
-#-------------------------------------------------
+###################################################
+#Set seed for subsampling sequences and datapoints#
+###################################################
 if(random_seed.character==TRUE) #Seed for random number generator itself is random
 {
 	rand=sample(0:10000,1) #Seed is between 0 to 10000
@@ -179,19 +198,24 @@ if(sample_filetype_FASTQ.character==TRUE)
 	}
 }
 
-#############################################################
-#Determine which reference sequence matches sample sequences#
-#############################################################
-
-#--------------------------------------------------------
-#Align sample and reference sequences (with ClustalOmega)
-#--------------------------------------------------------
+#####################################
+#Align sequences (with ClustalOmega)#
+#####################################
 #Define number of sequences
 n_sample.scalar=length(sample.shortreadq) #Number of sample sequences
+
+if(reference.filepath!="NA")
+{
 n_reference.scalar=length(reference.shortread) #Number of reference sequences
 
 #Combine sample and reference sequences into one set
 combined.dnastring=xscat(c(sread(sample.shortreadq),sread(reference.shortread)))
+}
+
+if(reference.filepath=="NA")
+{
+combined.dnastring=xscat(sread(sample.shortreadq))
+}
 
 #Perform alignment
 alignment.msa=msa(combined.dnastring, method="ClustalOmega", type="dna", order="input")
@@ -201,17 +225,31 @@ alignment.matrix=as.matrix(alignment.msa)
 
 #Split matrix into one containing sample sequences and another containing reference sequences 
 letters_sample_aligned.matrix=alignment.matrix[0:n_sample.scalar,]
+
+if(reference.filepath!="NA")
+{
 letters_reference_aligned.matrix=alignment.matrix[(n_sample.scalar+1):(n_sample.scalar+n_reference.scalar),]
+}
 
 #Output alignment as character
 alignment.character=apply(format(alignment.matrix), 1, paste, collapse="")
 
 #Split character into one containing sample sequences and another containing reference sequences 
 letters_sample_aligned.character=alignment.character[0:n_sample.scalar]
+
+if(reference.filepath!="NA")
+{
 letters_reference_aligned.character=alignment.character[(n_sample.scalar+1):(n_sample.scalar+n_reference.scalar)]
+}
 
 #Determine the width of the alignment (number of nucleotide positions in the aligned sequences)
 n_align.scalar=ncol(alignment.matrix)
+
+if(reference.filepath!="NA")
+{
+#############################################################
+#Determine which reference sequence matches sample sequences#
+#############################################################
 
 #---------------------------------------------------------
 #Find match between reference sequence and sample sequence 
@@ -274,31 +312,19 @@ distances_original_actual.matrix=as.matrix(distances_original_actual.dist) #Conv
 #A shared indel occurs when an indel ("-") is found same nucleotide position in both sequences
 #When calculating distance, the number of shared indels is substracted from the number of aligned nucleotide positions
 
-n_shared_indels.matrix=array(0,dim=c(n_sample.scalar,n_sample.scalar)) #Create empty matrix to hold number of shared indels
-
-for(i in 1:n_sample.scalar) #Perform loop for i=1..n_align.scalar
-{
-	if(i<n_sample.scalar)
-	{
-		for(j in c((i+1):n_sample.scalar)) #Perform loop for j=1..n_align.scalar
-		{
-			positions_indels.vector=which(reference_letters.matrix[i,]=="-") #Nucleotide positions of indels in sequence i
-			letters_indels.vector=reference_letters.matrix[j,positions_indels.vector] #Letters in sequence j corresponding to indels in sequence i
-
-			if(length(letters_indels.vector)>0) 
-			{
-				positions_shared_indels.vector=which(letters_indels.vector=="-") #Nucleotide positions of shared indels
-				n_shared_indels.matrix[i,j]=length(positions_shared_indels.vector) #Number of shared indels
-			}
-		}
-	}
-}
+n_shared_indels.matrix=n_shared_indels(reference_letters.matrix, reference_letters.matrix, n_sample.scalar, n_align.scalar)
 
 #--------------------
 #Calculate distances 
 #--------------------
 distances_original_actual.matrix=distances_original_actual.matrix/(n_align.scalar-n_shared_indels.matrix) #Calculate distances above matrix diagonal
 distances_original_actual.matrix[lower.tri(distances_original_actual.matrix)] = t(distances_original_actual.matrix)[lower.tri(distances_original_actual.matrix)] #Fill in distances below matrix diagonal
+}
+
+if(reference.filepath=="NA")
+{
+	distances_original_actual.matrix=NA
+}
 
 #####################################################################
 #Determine observed distances between all pairs of sample sequences#
@@ -317,25 +343,7 @@ distances_observed.matrix=as.matrix(distances_observed.dist) #Convert dist to ma
 #A shared indel occurs when an indel ("-") is found same nucleotide position in both sequences
 #When calculating distance, the number of shared indels is subtracted from the number of aligned nucleotide positions
 
-n_shared_indels.matrix=array(0,dim=c(n_sample.scalar,n_sample.scalar)) #Create empty matrix to hold number of shared indels
-
-for(i in c(1:n_sample.scalar)) #Perform loop for i=1..n_align.scalar
-{
-	if(i<n_sample.scalar)
-	{
-		for(j in c((i+1):n_sample.scalar)) #Perform loop for j=1..n_align.scalar
-		{
-			positions_indels.vector=which(letters_sample_aligned.matrix[i,]=="-") #Nucleotide positions of indels in sequence i
-			letters_indels.vector=letters_sample_aligned.matrix[j,positions_indels.vector] #Letters in sequence j corresponding to indels in sequence i
-
-			if(length(letters_indels.vector)>0) 
-			{
-				positions_shared_indels.vector=which(letters_indels.vector=="-") #Nucleotide positions of shared indels
-				n_shared_indels.matrix[i,j]=length(positions_shared_indels.vector) #Number of shared indels
-			}
-		}
-	}
-}
+n_shared_indels.matrix=n_shared_indels(letters_sample_aligned.matrix, letters_sample_aligned.matrix, n_sample.scalar, n_align.scalar)
 
 #--------------------
 #Calculate distances 
@@ -398,43 +406,7 @@ if(sample_filetype_FASTQ.character==TRUE) #Run this section only if sample filet
 	#Create matrices to hold distances 
 	#----------------------------------
 	#Create matrices with n_sample.scalar diagonal elements set to 1
-	distances_original_estimated.matrix=1-diag(n_sample.scalar) #Create matrix for original distances
-
-	#------------------------------------------------------
-	#Use loop to calculate distances above matrix diagonal
-	#------------------------------------------------------
-	for(i in c(1:n_sample.scalar)) #Perform loop for i=1..n_sample.scalar
-	{
-		if(i<n_sample.scalar)
-		{
-			for(j in c((i+1):n_sample.scalar)) #Perform loop for j=1..(i-1)
-			{
-				#Initialize values
-				distances_observed.vector=array(0,dim=n_align.scalar) #Creates blank array to hold observed distances values at each nucleotide position, with n_align.scalar dimensions
-				distances_original_estimated.vector=array(0,dim=n_align.scalar) #Creates blank array to hold original distances values at each nucleotide position, with n_align.scalar dimensions
-				n_shared_indels.scalar=0 #Number of indels shared between sample and reference sequences at a given k
-
-				#Calculate distances at nucletotide position k for for sequences i and j
-				distances_observed.vector=letters_sample_aligned.matrix[i,]!=letters_sample_aligned.matrix[j,] #Observed distances
-				distances_original_estimated.vector=(9*distances_observed.vector-9*errorrates_estimated_aligned.matrix[i,]-9*errorrates_estimated_aligned.matrix[j,]+12*(errorrates_estimated_aligned.matrix[i,]*errorrates_estimated_aligned.matrix[j,]))/(-12*errorrates_estimated_aligned.matrix[i,]-12*errorrates_estimated_aligned.matrix[j,]+16*(errorrates_estimated_aligned.matrix[i,]*errorrates_estimated_aligned.matrix[j,])+9) #Original distances (see equation in manuscript)
-				distances_original_estimated.vector[is.na(distances_original_estimated.vector)]= 1 #Replace "NA" (corresponding to positions with indel) with 1			
-
-				#Count shared indels
-				positions_indels.vector=which(reference_letters.matrix[i,]=="-") #Nucleotide positions of indels in sequence i
-				letters_indels.vector=reference_letters.matrix[j,positions_indels.vector] #Letters in sequence j corresponding to indels in sequence i
-				if(length(letters_indels.vector)>0) 
-				{
-					positions_shared_indels.vector=which(letters_indels.vector=="-") #Nucleotide positions of shared indels
-					n_shared_indels.scalar=length(positions_shared_indels.vector) #Number of shared indels
-				}
-
-				#Calculate distances across nucleotide positions for sequences i and j
-				distances_original_estimated.matrix[i,j]=(sum(distances_original_estimated.vector)-n_shared_indels.scalar)/(n_align.scalar-n_shared_indels.scalar) #Original distances
-			}
-				#Show progress of loop
-				progress(value=i,max.value=n_sample.scalar)
-		}
-	}
+	distances_original_estimated.matrix=distances_original_estimated(letters_sample_aligned.matrix, n_align.scalar, n_sample.scalar, errorrates_estimated_aligned.matrix)
 
 	#----------------------------------------
 	#Fill in distances below matrix diagonal
@@ -447,6 +419,8 @@ if(sample_filetype_FASTQ.character==FALSE) #Run this section only if sample file
 	distances_original_estimated.matrix=NA
 }
 
+if(reference.filepath!="NA")
+{
 ###################################################################################################
 #Calculate actual sequencing error rate and compare to estimated (instrument-reported) error rates#
 ###################################################################################################
@@ -516,6 +490,12 @@ if(sample_filetype_FASTQ.character==FALSE)
 
 #Remove rows containing "NA"
 errorrates.matrix=as.matrix(na.omit(errorrates.dataframe))
+}
+
+if(reference.filepath=="NA")
+{
+	errorrates.matrix="NA"
+}
 
 ##################################
 #Calculate Jukes-Cantor distances#
@@ -527,7 +507,6 @@ distances_JC_original_actual.matrix=-3/4*log(1-4/3*(distances_original_actual.ma
 #################################
 #Place distances into dataframes#
 #################################
-
 #Output distances_observed.matrix and distances_original_actual.matrix into rows of a dataframe  
 distances_observed.vector=as.vector(distances_observed.matrix) #Output distances_observed.matrix into a vector
 distances_observed_nodiagonals.vector=distances_observed.vector[-seq(1,n_sample.scalar^2,n_sample.scalar+1)] #Remove diagonal elements
@@ -675,7 +654,6 @@ if(make_plots.character==TRUE) #Run this section only if user wants to make plot
 ####################################
 #Calculate diversity and errorrates# 
 ####################################
-#Diversity is determined as mean pairwise distance (MPI) and mean pairwise distance (MPD)
 MPD_observed.scalar=mean(distances_observed_nodiagonals.vector)
 MPD_original_estimated.scalar=mean(distances_original_estimated_nodiagonals.vector)
 MPD_original_actual.scalar=mean(distances_original_actual_nodiagonals.vector)
@@ -685,26 +663,29 @@ MPD_JC_original_estimated.scalar=mean(distances_JC_original_estimated_nodiagonal
 MPD_JC_original_actual.scalar=mean(distances_JC_original_actual_nodiagonals.vector)
 
 richness_observed.scalar=sum(!duplicated(letters_sample_aligned.character))
-richness_actual.scalar=sum(!duplicated(reference_letters.character))
 
-errorrates_actual.scalar=mean(errorrates.matrix[,1])
-errorrates_estimated.scalar=mean(errorrates.matrix[,2])
-
-
-if(sample_filetype_FASTQ.character==FALSE) #Report values as "NA" if sample type is FASTA
+if(reference.filepath!="NA")
+{
+	richness_actual.scalar=sum(!duplicated(reference_letters.character))
+	errorrates_actual.scalar=mean(errorrates.matrix[,1])
+	errorrates_estimated.scalar=mean(errorrates.matrix[,2])
+}
+	
+if(sample_filetype_FASTQ.character==FALSE)
 {
 	MPD_original_estimated.scalar=NA
 	MPD_JC_original_estimated.scalar=NA
 	errorrates_estimated.scalar=NA
 }
 
-MPD_observed.scalar
-MPD_original_estimated.scalar
-MPD_original_actual.scalar
-
-MPD_JC_observed.scalar
-MPD_JC_original_estimated.scalar
-MPD_JC_original_actual.scalar
-
-richness_observed.scalar
-richness_actual.scalar
+if(reference.filepath=="NA")
+{
+	richness_actual.scalar=NA
+	MPD_original_actual.scalar=NA
+	MPD_JC_original_actual.scalar=NA
+	errorrates_estimated.scalar=NA
+	errorrates_actual.scalar=NA
+	reference_id.vector=NA
+	identities_referencematch.vector=NA
+	distances_referencematch.vector=NA
+}
