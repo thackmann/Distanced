@@ -7,7 +7,8 @@ Estimating diversity of microbes is a challenge because errors in sequence creat
 Distanced requires a set a DNA sequence reads in fastq format.  A set of reference sequences in fasta format is optional. If reference sequences are provided, Distanced will report the actual diversity of the DNA sequences, providing a check on accuracy.
 
 Users can verify installation of Distanced with test data.  Test data provided here are sequence reads for an artificial microbial community and from Kozich et al. (2011).  Primers and chimeras have already been removed.  
-Installation
+
+## Installation
 
 Download all files in Distanced folder. 
 
@@ -33,7 +34,7 @@ Open and run Distanced.R in R statistical software as with test data.
 
 If reference sequences are available, set “reference.filepath” (L21) to name of \*.fasta file containing those sequences.  Make sure to remove primers and place in same directory as Distanced.R.
 
-# License
+## License
 Copyright 2018 Timothy J. Hackmann
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
