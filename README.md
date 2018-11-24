@@ -6,7 +6,7 @@ Estimating diversity of microbes is a challenge because errors in sequence creat
 
 Distanced requires a set a DNA sequence reads in fastq format.  A set of reference sequences in fasta format is optional. If reference sequences are provided, Distanced will report the actual diversity of the DNA sequences, providing a check on accuracy.
 
-Users can verify installation of Distanced with test data.  Test data provided here are sequence reads for an artificial microbial community and from Kozich et al. (2011).  Primers and chimeras have already been removed.  
+Users can verify installation of Distanced with test data.  Test data provided here are sequence reads for an artificial microbial community and from Kozich et al. (2013. Appl Environ Microbiol. 79:112–5120).  Primers and chimeras have already been removed.  
 
 ## Installation
 
