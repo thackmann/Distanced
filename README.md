@@ -10,29 +10,28 @@ Users can verify installation of Distanced with test data.  Test data provided h
 
 ## Installation
 
-Download all files in Distanced folder. 
+1)  Download all files in Distanced folder. 
 
-Open Distanced.R in text editor.  Change “C:/My Directory" (L15) to match directory where files were downloaded.  
+2)  Open Distanced.R in text editor.  Change “C:/My Directory" (L15) to match directory where files were downloaded.  
 
 ## Operation 
 ### With test data
-Open Distanced.R in R statistical software.
+1)  Open Distanced.R in R statistical software.
 
-In R menu, click “Edit -> Run all”.
+2)  In R menu, click “Edit -> Run all”.
 
 ### With user data
-Obtain sequence reads in \*fastq format.  All reads should be for the same region of DNA (e.g., V4 region of 16S ribosomal DNA).  
+1)  Obtain sequence reads in \*fastq format.  All reads should be for the same region of DNA (e.g., V4 region of 16S ribosomal DNA).  
 
-Remove primers and chimeras.  The Tools folder has an R script for removing primers 
-(primer_stripper.R) and VSEARCH script for identifying chimeras (VSEARCH_script.bash).
+2)  Remove primers and chimeras.  The Tools folder has an R script for removing primers (primer_stripper.R) and VSEARCH script for identifying chimeras (VSEARCH_script.bash).
 
-After removing primers and chimeras, move \*.fastq or \*.fasta file to same directory as Distanced.R.  
+3)  After removing primers and chimeras, move \*.fastq or \*.fasta file to same directory as Distanced.R.  
 
-Open Distanced.R in text editor.  Set “sample.filepath” (L18) to match name of \*.fastq  file.  Set “reference.filepath” (L21) to “NA”.
+4)  Open Distanced.R in text editor.  Set “sample.filepath” (L18) to match name of \*.fastq  file.  Set “reference.filepath” (L21) to “NA”.
 
-Open and run Distanced.R in R statistical software as with test data.
+5)  Open and run Distanced.R in R statistical software as with test data.
 
-If reference sequences are available, set “reference.filepath” (L21) to name of \*.fasta file containing those sequences.  Make sure to remove primers and place in same directory as Distanced.R.
+6)  If reference sequences are available, set “reference.filepath” (L21) to name of \*.fasta file containing those sequences.  Make sure to remove primers and place in same directory as Distanced.R.
 
 ## License
 Copyright 2018 Timothy J. Hackmann
