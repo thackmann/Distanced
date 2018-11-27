@@ -1,6 +1,6 @@
-#$$$$$$$$$$$$$$$$$$$$$$$$$#
-#$			DISTANCED        $#
-#$$$$$$$$$$$$$$$$$$$$$$$$$#
+#$$$$$$$$$$$#
+#$DISTANCED$#
+#$$$$$$$$$$##
 #A script for estimating the original distances between nucleic acid sequences (prior to introduction of sequencing errors)
 
 ##########################################################
@@ -15,10 +15,10 @@
 setwd("C:/My Directory")
 
 #File path for sample sequences (those containing errors) 
-sample.filepath=file.path=("Mock1V4run130401.fq")
+sample.filepath=file.path=("Mock1V34run130401_test_data.fq")
 
 #File path for reference sequences (those containing no errors)
-reference.filepath=file.path=("reference_sequences_V4_no_primers.fasta") #Set to NA is no reference sequences available
+reference.filepath=file.path=("reference_sequences_V34_no_primers.fasta") #Set to NA is no reference sequences available
 
 #File path for C++ code
 distances_original_estimated.filepath=file.path=("distances_original_estimated.cpp")
@@ -27,7 +27,7 @@ n_shared_indels.filepath=file.path=("n_shared_indels.cpp")
 #------------------------------------------------------------------------
 #Define maximum number of sequences to be analyzed and datapoints to plot
 #------------------------------------------------------------------------
-n_sample_max.scalar=100 #Maximum number of sequences to be analyzed
+n_sample_max.scalar=1000 #Maximum number of sequences to be analyzed
 n_datapoints_max.scalar=10000 #Maximum number of datapoints to plot
 replace_ambiguous_letters.character=TRUE #Replace ambiguous letters (N) with A, T, C, or G (chosen randomly) (set to FALSE if no replacement should be made)
 random_seed.character=FALSE #For reproducibility, same sequences and datapoints are subsampled each time (set to TRUE if subsampling should be different)
@@ -689,3 +689,8 @@ if(reference.filepath=="NA")
 	identities_referencematch.vector=NA
 	distances_referencematch.vector=NA
 }
+
+output.dataframe=as.data.frame(c(MPD_observed.scalar,MPD_original_estimated.scalar,MPD_original_actual.scalar))
+rownames(output.dataframe)=c("Uncorrected", "Estimated by Distanced", "Actual")
+colnames(output.dataframe)=c("Mean pairwise distance")
+output.dataframe
