@@ -19,7 +19,7 @@ Run devtools::install_github(repo="thackmann/distanced", subdir="Distanced")
 
 ## Operation 
 ### With test data
-1)  Open the <a href="https://github.com/thackmann/Distanced/blob/master/Distanced/demo/demo.R">demo script</a>
+1)  Open the <a href="https://github.com/thackmann/Distanced/blob/master/Distanced/demo/demo.R">demo script</a>.
 2)  In R menu, click “Edit -> Run all”.
 
 ### With user data
