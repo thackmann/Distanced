@@ -1,6 +1,7 @@
-#Install packages
+#Install and load packages
 install.packages("devtools")
 devtools::install_github(repo="thackmann/distanced", subdir="Distanced")
+library(Distanced)
 
 #Set parameters
 sample.filepath=file.path=system.file("extdata", "Mock1V34run130401_test_data.fq", package = "Distanced")
