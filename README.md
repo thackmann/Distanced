@@ -25,8 +25,8 @@ Run devtools::install_github(repo="thackmann/distanced", subdir="Distanced")
 ### With user data
 1)  Obtain sequence reads in \*fastq format.  All reads should be for the same region of DNA (e.g., V4 region of 16S ribosomal DNA).  
 2)  Remove primers and chimeras.  The Tools folder has an R script for removing primers (primer_stripper.R) and VSEARCH script for identifying chimeras (VSEARCH_script.bash).
-3) Open R and set sample.filepath to name of \*.fastq file containing those sequences
-4)  If reference sequences are available, set “reference.filepath” (L21) to name of \*.fasta file containing those sequences.  Make sure to remove primers.
+3)  Open R and set sample.filepath to name of \*.fastq file containing those sequences
+4)  If reference sequences are available, set “reference.filepath” to name of \*.fasta file containing those sequences.  Make sure to remove primers.
 
 ## License
 Copyright 2019 Timothy J. Hackmann
