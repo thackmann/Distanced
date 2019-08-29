@@ -12,7 +12,7 @@ random_seed.character=FALSE
 #Run Distanced
 Distanced(sample.filepath, reference.filepath, n_sample_max.scalar, replace_ambiguous_letters.character, random_seed.character)
 
-#If Distanced ran successfullt, output will match that below
+#If Distanced ran successfully, output will match that below
 #                        Mean pairwise distance
 # Uncorrected                         0.2351698
 # Estimated by Distanced              0.2236499
