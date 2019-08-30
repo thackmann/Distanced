@@ -9,7 +9,8 @@ Users can verify installation of Distanced with test data.  Test data provided h
 
 ## Installation 
 ### Experienced R users
-Run devtools::install_github(repo="thackmann/distanced", subdir="Distanced")
+In R, run 
+<font face="Courier New">devtools::install_github(repo="thackmann/distanced", subdir="Distanced")</font> 
 
 ### New R users
 1)  Download R (https://cran.r-project.org/mirrors.html)
@@ -19,7 +20,7 @@ Run devtools::install_github(repo="thackmann/distanced", subdir="Distanced")
 
 ## Operation 
 ### With test data
-1)  Open the <a href="https://github.com/thackmann/Distanced/blob/master/Distanced/demo/demo.R">demo script</a>.
+1)  In R, open the <a href="https://github.com/thackmann/Distanced/blob/master/Distanced/demo/demo.R">demo script</a>.
 2)  In R menu, click “Edit -> Run all”.
 
 ### With user data
