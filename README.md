@@ -17,6 +17,7 @@ In R, run
 2)  Download the <a href="https://github.com/thackmann/Distanced/blob/master/Distanced/demo/demo.R">demo script</a>.
 3)  Open the script in R.
 4)  In R menu, click “Edit -> Run all”.
+Note:  If prompted during installation, choose "No" to the question "Do you want to install from sources the package which needs compilation?".  Otherwise, installation will fail.   
 
 ## Operation 
 ### With test data
