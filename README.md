@@ -1,7 +1,7 @@
 # Distanced
 
 ## Overview
-Distanced is a bioinformatics tool that estimates diversity of microbes.  Specifically, it estimates the diversity of ribosomal DNA sequences within microbial communities. Estimating diversity of microbes is a challenge because errors in sequence create false sequences and inflate diversity. Distanced overcomes this problem by correcting values of mean pairwise distance, a measure of within-sample diversity, for the expected increase after sequencing.
+Distanced is a bioinformatics tool that estimates diversity of microbes.  Specifically, it estimates the diversity of ribosomal DNA sequences within microbial communities. Estimating diversity of microbes is a challenge because DNA sequencing is error prone, resulting in false sequences and inflated values of diversity. Distanced overcomes this problem by correcting values of mean pairwise distance, a measure of within-sample diversity, for the expected increase after sequencing.
 
 Distanced requires a set a DNA sequence reads in fastq format.  A set of reference sequences in fasta format is optional. If reference sequences are provided, Distanced will report the actual diversity of the DNA sequences, providing a check on accuracy.
 
